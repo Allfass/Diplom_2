@@ -1,4 +1,6 @@
 import pytest
+import requests
+from data import TestData
 from faker import Faker
 
 
@@ -10,3 +12,29 @@ def credentials():
     credentials['password'] = fake.password(length=12)
     credentials['name'] = fake.first_name()
     return credentials
+
+@pytest.fixture
+def registered_user(credentials):
+    payload = {
+            "email": credentials["email"],
+            "password": credentials['password'],
+            "name": credentials['name']
+        }
+    responce = requests.post(TestData.CREATE_USER, data=payload, timeout=10)
+    credentials["accessToken"] = responce.json()["accessToken"]
+    credentials["refreshToken"] = responce.json()["refreshToken"]
+    return credentials
+
+@pytest.fixture
+def logined_user(registered_user):
+    payload = {
+            "email": registered_user["email"],
+            "password": registered_user['password']
+        }
+    header = {
+            'Authorization': registered_user["accessToken"]
+        }
+    response = requests.post(TestData.LOGIN_USER, data=payload, headers=header, timeout=10)
+    registered_user["accessToken"] = response.json()["accessToken"]
+    registered_user["refreshToken"] = response.json()["refreshToken"]
+    return registered_user
