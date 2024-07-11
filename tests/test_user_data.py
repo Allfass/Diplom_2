@@ -6,7 +6,8 @@ from data import TestData
 
 
 class TestUserData():
-    
+    @allure.title('Проверка обновления данных пользователя')
+    @allure.description('При обновлении данных пользователя, вернутся данные пользователя и код 200')
     @pytest.mark.parametrize("field, second_field",[
             ("email", "name"),
             ("name", "email")
@@ -27,7 +28,9 @@ class TestUserData():
                        second_field:registered_user[second_field]
                    }
                }
-    
+
+    @allure.title('Проверка обновления данных пользователя без авторизации')
+    @allure.description('При обновлении данных пользователя без авторизации, вернётся ошибка и код 401')
     @pytest.mark.parametrize("field",["email", "name"])           
     def test_update_user_data_without_auth_token_return_401(self, registered_user, field):
         payload = {

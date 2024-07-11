@@ -6,7 +6,8 @@ from data import TestData
 
 
 class TestLoginUser():
-    
+    @allure.title('Проверка авторизации зарегистрированного пользователя')
+    @allure.description('При авторизации зарегистрированного пользователя, вернутся пользовательские данные и код 200')
     def test_login_exist_user_return_success(self, registered_user):
         payload = {
             "email": registered_user["email"],
@@ -23,7 +24,9 @@ class TestLoginUser():
                    "name":registered_user['name']} and \
                response.json()["accessToken"] and \
                response.json()["refreshToken"]
-               
+
+    @allure.title('Проверка авторизации зарегистрированного пользователя без обязательного поля')
+    @allure.description('При авторизации зарегистрированного пользователя без обязательного поля, вернётся ошибка и код 401')
     @pytest.mark.parametrize("field",["email", "password"])
     def test_login_exist_user_without_required_field_return_401(self, registered_user, field):
         payload = {
