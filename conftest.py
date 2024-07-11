@@ -38,3 +38,18 @@ def logined_user(registered_user):
     registered_user["accessToken"] = response.json()["accessToken"]
     registered_user["refreshToken"] = response.json()["refreshToken"]
     return registered_user
+
+@pytest.fixture
+def order(logined_user):
+    payload = {
+        "ingredients": [
+            "61c0c5a71d1f82001bdaaa6d",
+            "61c0c5a71d1f82001bdaaa73",
+            "61c0c5a71d1f82001bdaaa77"]
+    }
+    header = {
+        'Authorization': logined_user["accessToken"]
+    }
+    response = requests.post(TestData.CREATE_ORDER, headers=header, data=payload, timeout=10)
+    logined_user["response"] = response.json()
+    return logined_user
