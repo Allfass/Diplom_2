@@ -1,9 +1,16 @@
 class TestData():
     MAIN_URL = "https://stellarburgers.nomoreparties.site"
-    CREATE_USER = MAIN_URL + "/api/auth/register"
-    LOGIN_USER = MAIN_URL + "/api/auth/login"
-    USER_DATA = MAIN_URL + "/api/auth/user"
-    CREATE_ORDER = MAIN_URL + "/api/orders"
+    CREATE_USER_URL = MAIN_URL + "/api/auth/register"
+    LOGIN_USER_URL = MAIN_URL + "/api/auth/login"
+    USER_DATA_URL = MAIN_URL + "/api/auth/user"
+    CREATE_ORDER_URL = MAIN_URL + "/api/orders"
+    
+    CORRECT_INGREDIENT_PAYLOAD = {
+        "ingredients": [
+            "61c0c5a71d1f82001bdaaa6d",
+            "61c0c5a71d1f82001bdaaa73",
+            "61c0c5a71d1f82001bdaaa77"]
+    }
     
     ROOLS_HASH = {
         "Флюоресцентная булка R2-D3": "61c0c5a71d1f82001bdaaa6d",
@@ -269,5 +276,4 @@ class TestData():
         (ROOLS_HASH["Флюоресцентная булка R2-D3"], SAUCES_HASH["Соус традиционный галактический"], FILLINGS_HASH["Кристаллы марсианских альфа-сахаридов"], EXPECTED_THREE_INGREDIENTS_SUITES[1]),
         (ROOLS_HASH["Флюоресцентная булка R2-D3"], SAUCES_HASH["Соус с шипами Антарианского плоскоходца"], FILLINGS_HASH["Мини-салат Экзо-Плантаго"], EXPECTED_THREE_INGREDIENTS_SUITES[2]),
         (ROOLS_HASH["Флюоресцентная булка R2-D3"], SAUCES_HASH["Соус Spicy-X"], FILLINGS_HASH["Сыр с астероидной плесенью"], EXPECTED_THREE_INGREDIENTS_SUITES[3])
-        
     ]
