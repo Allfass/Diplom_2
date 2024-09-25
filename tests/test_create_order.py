@@ -1,38 +1,34 @@
 import allure
 import pytest
-import requests
-from data import TestData
-from helper import TestHelper
+from tests.shared.request import TestRequests
+from tests.shared.data import TestData
+from tests.shared.helper import TestHelper
 
 
 class TestCreateOrder():
     @allure.title('Проверка создания заказа')
     @allure.description('При создании заказа, вернётся состав заказа и код 200')
     def test_create_order_with_authorization_return_order(self, logined_user):
-        payload = {
-            "ingredients": [
-                "61c0c5a71d1f82001bdaaa6d",
-                "61c0c5a71d1f82001bdaaa73",
-                "61c0c5a71d1f82001bdaaa77"]
-        }
-        header = {
-            'Authorization': logined_user["accessToken"]
-        }
-        response = requests.post(TestData.CREATE_ORDER, headers=header, data=payload, timeout=10)
-        expected = TestHelper.replace_fields_for_creating_order_test(TestData.EXPECTED_THREE_INGREDIENTS_SUITES[0], response, logined_user)
+        test_request = TestRequests(
+            TestData.CREATE_ORDER_URL, 
+            TestData.CORRECT_INGREDIENT_PAYLOAD, 
+            logined_user["accessToken"])
+        response = test_request.post()
+        expected = TestHelper.replace_fields_for_creating_order_test(
+            TestData.EXPECTED_THREE_INGREDIENTS_SUITES[0], 
+            response, 
+            logined_user
+        )
         assert response.status_code == 200 and\
                response.json() == expected
 
     @allure.title('Проверка создания заказа без авторизации')
     @allure.description('При создании заказа без авторизации, вернётся ошибка')
     def test_create_order_without_authorization_return_error(self):
-        payload = {
-            "ingredients": [
-                "61c0c5a71d1f82001bdaaa6d",
-                "61c0c5a71d1f82001bdaaa73",
-                "61c0c5a71d1f82001bdaaa77"]
-        }
-        response = requests.post(TestData.CREATE_ORDER, data=payload, timeout=10)
+        test_request = TestRequests(
+            TestData.CREATE_ORDER_URL, 
+            TestData.CORRECT_INGREDIENT_PAYLOAD)
+        response = test_request.post()
         assert response.status_code == 200 and\
                response.json() == {
                     "success": True,
@@ -46,32 +42,30 @@ class TestCreateOrder():
     @allure.description('При создании заказа с тремя ингредиентами, вернётся состав заказа и код 200')
     @pytest.mark.parametrize("rool,sauce,filling, expected", TestData.INGREDIENTS_HASH_AND_EXPECT_SUITES)
     def test_create_order_with_3_ingredients_return_success(self, logined_user, rool, sauce, filling, expected):
-        payload = {
-            "ingredients": [
-                rool,
-                sauce,
-                filling]
-        }
-        header = {
-            'Authorization': logined_user["accessToken"]
-        }
-        response = requests.post(TestData.CREATE_ORDER, headers=header, data=payload, timeout=10)
+        test_request = TestRequests(
+            TestData.CREATE_ORDER_URL, 
+            {
+                "ingredients": [
+                    rool,
+                    sauce,
+                    filling]
+            }, 
+            logined_user["accessToken"])
+        response = test_request.post()
         expected = TestHelper.replace_fields_for_creating_order_test(expected, response, logined_user)
-        
         assert response.status_code == 200 and\
                response.json() == expected
 
     @allure.title('Проверка создания заказа без ингредиентов')
     @allure.description('При создании заказа без ингредиентов, вернётся ошибка  и код 400')
     def test_create_order_without_ingredients_return_400(self, logined_user):
-        payload = {
-            "ingredients": []
-        }
-        header = {
-            'Authorization': logined_user["accessToken"]
-        }
-        response = requests.post(TestData.CREATE_ORDER, headers=header, data=payload, timeout=10)
-        
+        test_request = TestRequests(
+            TestData.CREATE_ORDER_URL, 
+            {
+                "ingredients": []
+            }, 
+            logined_user["accessToken"])
+        response = test_request.post()
         assert response.status_code == 400 and \
                response.json() == {
                    "success": False,
@@ -81,17 +75,16 @@ class TestCreateOrder():
     @allure.title('Проверка создания заказа с неправильным хэшем ингредиентов')
     @allure.description('При создании заказа с неправильным хэшем ингредиентов, вернётся ошибка  и код 400')
     def test_create_order_with_wrong_hash_ingredients_return_400(self, logined_user):
-        payload = {
-            "ingredients": [
+        test_request = TestRequests(
+            TestData.CREATE_ORDER_URL, 
+            {
+                "ingredients": [
                 "61c0c5a71d1f82001bdaa111",
                 "61c0c5a71d1f82001bdaa222",
                 "61c0c5a71d1f82001bdaa333"]
-        }
-        header = {
-            'Authorization': logined_user["accessToken"]
-        }
-        response = requests.post(TestData.CREATE_ORDER, headers=header, data=payload, timeout=10)
-        
+            }, 
+            logined_user["accessToken"])
+        response = test_request.post()
         assert response.status_code == 400 and \
                response.json() == {
                    "success": False,
@@ -101,7 +94,15 @@ class TestCreateOrder():
     @allure.title('Проверка получения заказа без авторизации')
     @allure.description('При получении заказа без авторизации, вернётся ошибка  и код 401')
     def test_get_order_without_authorization_return_error(self):
-        response = requests.get(TestData.CREATE_ORDER, timeout=10)
+        test_request = TestRequests(
+            TestData.CREATE_ORDER_URL, 
+            {
+                "ingredients": [
+                "61c0c5a71d1f82001bdaa111",
+                "61c0c5a71d1f82001bdaa222",
+                "61c0c5a71d1f82001bdaa333"]
+            })
+        response = test_request.get()
         assert response.status_code == 401 and \
             response.json() == {
                 "success": False,
@@ -111,10 +112,11 @@ class TestCreateOrder():
     @allure.title('Проверка получения заказа')
     @allure.description('При получении заказа, вернётся состав заказа  и код 200')
     def test_get_order_return_order(self, order):
-        header = {
-            'Authorization': order["accessToken"]
-        }
-        response = requests.get(TestData.CREATE_ORDER, headers=header, timeout=10)
+        test_request = TestRequests(
+            TestData.CREATE_ORDER_URL, 
+            "",
+            order["accessToken"])
+        response = test_request.get_empty_body()
         assert response.status_code == 200 and \
             response.json() == {
                 "success": True,
