@@ -76,13 +76,8 @@ class TestCreateOrder():
     @allure.description('При создании заказа с неправильным хэшем ингредиентов, вернётся ошибка  и код 400')
     def test_create_order_with_wrong_hash_ingredients_return_400(self, logined_user):
         test_request = TestRequests(
-            TestData.CREATE_ORDER_URL, 
-            {
-                "ingredients": [
-                "61c0c5a71d1f82001bdaa111",
-                "61c0c5a71d1f82001bdaa222",
-                "61c0c5a71d1f82001bdaa333"]
-            }, 
+            TestData.CREATE_ORDER_URL,
+            TestData.WRONG_INGREDIENT_HASH,
             logined_user["accessToken"])
         response = test_request.post()
         assert response.status_code == 400 and \
@@ -96,12 +91,7 @@ class TestCreateOrder():
     def test_get_order_without_authorization_return_error(self):
         test_request = TestRequests(
             TestData.CREATE_ORDER_URL, 
-            {
-                "ingredients": [
-                "61c0c5a71d1f82001bdaa111",
-                "61c0c5a71d1f82001bdaa222",
-                "61c0c5a71d1f82001bdaa333"]
-            })
+            TestData.WRONG_INGREDIENT_HASH)
         response = test_request.get()
         assert response.status_code == 401 and \
             response.json() == {

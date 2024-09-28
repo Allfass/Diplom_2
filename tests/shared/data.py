@@ -11,6 +11,13 @@ class TestData():
             "61c0c5a71d1f82001bdaaa73",
             "61c0c5a71d1f82001bdaaa77"]
     }
+
+    WRONG_INGREDIENT_HASH = {
+        "ingredients": [
+            "61c0c5a71d1f82001bdaa111",
+            "61c0c5a71d1f82001bdaa222",
+            "61c0c5a71d1f82001bdaa333"]
+    }
     
     ROOLS_HASH = {
         "Флюоресцентная булка R2-D3": "61c0c5a71d1f82001bdaaa6d",
