@@ -1,6 +1,6 @@
 import pytest
-import requests
-from data import TestData
+from tests.shared.data import TestData
+from tests.shared.request import Requests
 from faker import Faker
 
 
@@ -15,41 +15,41 @@ def credentials():
 
 @pytest.fixture
 def registered_user(credentials):
-    payload = {
+    test_request = Requests(
+        TestData.CREATE_USER_URL,
+        {
             "email": credentials["email"],
             "password": credentials['password'],
             "name": credentials['name']
         }
-    responce = requests.post(TestData.CREATE_USER, data=payload, timeout=10)
+    )
+    responce = test_request.post()
     credentials["accessToken"] = responce.json()["accessToken"]
     credentials["refreshToken"] = responce.json()["refreshToken"]
     return credentials
 
 @pytest.fixture
 def logined_user(registered_user):
-    payload = {
+    test_request = Requests(
+        TestData.LOGIN_USER_URL,
+        {
             "email": registered_user["email"],
             "password": registered_user['password']
-        }
-    header = {
-            'Authorization': registered_user["accessToken"]
-        }
-    response = requests.post(TestData.LOGIN_USER, data=payload, headers=header, timeout=10)
+        },
+        registered_user["accessToken"]
+    )
+    response = test_request.post()
     registered_user["accessToken"] = response.json()["accessToken"]
     registered_user["refreshToken"] = response.json()["refreshToken"]
     return registered_user
 
 @pytest.fixture
 def order(logined_user):
-    payload = {
-        "ingredients": [
-            "61c0c5a71d1f82001bdaaa6d",
-            "61c0c5a71d1f82001bdaaa73",
-            "61c0c5a71d1f82001bdaaa77"]
-    }
-    header = {
-        'Authorization': logined_user["accessToken"]
-    }
-    response = requests.post(TestData.CREATE_ORDER, headers=header, data=payload, timeout=10)
+    test_request = Requests(
+        TestData.CREATE_ORDER_URL,
+        TestData.CORRECT_INGREDIENT_PAYLOAD,
+        logined_user["accessToken"]
+    )
+    response = test_request.post()
     logined_user["response"] = response.json()
     return logined_user
