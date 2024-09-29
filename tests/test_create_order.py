@@ -1,6 +1,6 @@
 import allure
 import pytest
-from tests.shared.request import TestRequests
+from tests.shared.request import Requests
 from tests.shared.data import TestData
 from tests.shared.helper import TestHelper
 
@@ -9,7 +9,7 @@ class TestCreateOrder():
     @allure.title('Проверка создания заказа')
     @allure.description('При создании заказа, вернётся состав заказа и код 200')
     def test_create_order_with_authorization_return_order(self, logined_user):
-        test_request = TestRequests(
+        test_request = Requests(
             TestData.CREATE_ORDER_URL, 
             TestData.CORRECT_INGREDIENT_PAYLOAD, 
             logined_user["accessToken"])
@@ -25,7 +25,7 @@ class TestCreateOrder():
     @allure.title('Проверка создания заказа без авторизации')
     @allure.description('При создании заказа без авторизации, вернётся ошибка')
     def test_create_order_without_authorization_return_error(self):
-        test_request = TestRequests(
+        test_request = Requests(
             TestData.CREATE_ORDER_URL, 
             TestData.CORRECT_INGREDIENT_PAYLOAD)
         response = test_request.post()
@@ -42,7 +42,7 @@ class TestCreateOrder():
     @allure.description('При создании заказа с тремя ингредиентами, вернётся состав заказа и код 200')
     @pytest.mark.parametrize("rool,sauce,filling, expected", TestData.INGREDIENTS_HASH_AND_EXPECT_SUITES)
     def test_create_order_with_3_ingredients_return_success(self, logined_user, rool, sauce, filling, expected):
-        test_request = TestRequests(
+        test_request = Requests(
             TestData.CREATE_ORDER_URL, 
             {
                 "ingredients": [
@@ -59,7 +59,7 @@ class TestCreateOrder():
     @allure.title('Проверка создания заказа без ингредиентов')
     @allure.description('При создании заказа без ингредиентов, вернётся ошибка  и код 400')
     def test_create_order_without_ingredients_return_400(self, logined_user):
-        test_request = TestRequests(
+        test_request = Requests(
             TestData.CREATE_ORDER_URL, 
             {
                 "ingredients": []
@@ -75,7 +75,7 @@ class TestCreateOrder():
     @allure.title('Проверка создания заказа с неправильным хэшем ингредиентов')
     @allure.description('При создании заказа с неправильным хэшем ингредиентов, вернётся ошибка  и код 400')
     def test_create_order_with_wrong_hash_ingredients_return_400(self, logined_user):
-        test_request = TestRequests(
+        test_request = Requests(
             TestData.CREATE_ORDER_URL,
             TestData.WRONG_INGREDIENT_HASH,
             logined_user["accessToken"])
@@ -89,10 +89,9 @@ class TestCreateOrder():
     @allure.title('Проверка получения заказа без авторизации')
     @allure.description('При получении заказа без авторизации, вернётся ошибка  и код 401')
     def test_get_order_without_authorization_return_error(self):
-        test_request = TestRequests(
-            TestData.CREATE_ORDER_URL, 
-            TestData.WRONG_INGREDIENT_HASH)
-        response = test_request.get()
+        test_request = Requests(
+            TestData.CREATE_ORDER_URL)
+        response = test_request.get_empty_body()
         assert response.status_code == 401 and \
             response.json() == {
                 "success": False,
@@ -102,7 +101,7 @@ class TestCreateOrder():
     @allure.title('Проверка получения заказа')
     @allure.description('При получении заказа, вернётся состав заказа  и код 200')
     def test_get_order_return_order(self, order):
-        test_request = TestRequests(
+        test_request = Requests(
             TestData.CREATE_ORDER_URL, 
             "",
             order["accessToken"])

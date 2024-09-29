@@ -1,7 +1,7 @@
 import requests
 
 
-class TestRequests():
+class Requests():
     def __init__(self, url, payload = "", token = "") -> None:
         self.url = url
         self.payload = payload
@@ -11,9 +11,9 @@ class TestRequests():
 
     def get_empty_body(self):
         if self.header['Authorization']:
-            return requests.post(self.url, headers=self.header, timeout=10)
+            return requests.get(self.url, headers=self.header, timeout=10)
         else:
-            return requests.post(self.url, timeout=10)
+            return requests.get(self.url, timeout=10)
     
     def post(self):
         if self.header['Authorization']:
