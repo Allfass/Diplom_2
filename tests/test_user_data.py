@@ -1,7 +1,7 @@
 import allure
 import pytest
-import requests
-from data import TestData
+from tests.shared.request import Requests
+from tests.shared.data import TestData
 
 
 
@@ -13,13 +13,14 @@ class TestUserData():
             ("name", "email")
         ])
     def test_update_user_data_with_auth_token_return_success(self, registered_user, field, second_field):
-        payload = {
+        test_request = Requests(
+            TestData.USER_DATA_URL,
+            {
                 field: f"01{registered_user[field]}"
-        }
-        header = {
-            'Authorization': registered_user["accessToken"]
-        }
-        response = requests.patch(TestData.USER_DATA, headers=header, data=payload, timeout=10)
+            },
+            registered_user["accessToken"]
+        )
+        response = test_request.patch()
         assert response.status_code == 200 and \
                response.json() == {
                    "success": True,
@@ -33,10 +34,12 @@ class TestUserData():
     @allure.description('При обновлении данных пользователя без авторизации, вернётся ошибка и код 401')
     @pytest.mark.parametrize("field",["email", "name"])           
     def test_update_user_data_without_auth_token_return_401(self, registered_user, field):
-        payload = {
+        test_request = Requests(
+            TestData.USER_DATA_URL,
+            {
                 field: f"01{registered_user[field]}"
-        }
-        response = requests.patch(TestData.USER_DATA, data=payload, timeout=10)
+            })
+        response = test_request.patch()
         assert response.status_code == 401 and \
                response.json() == {
                    "success": False,
