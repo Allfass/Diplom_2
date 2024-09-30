@@ -21,6 +21,12 @@ class Requests():
         else:
             return requests.post(self.url, data=self.payload, timeout=10)
         
+    def patch(self):
+        if self.header['Authorization']:
+            return requests.patch(self.url, headers=self.header, data=self.payload, timeout=10)
+        else:
+            return requests.patch(self.url, data=self.payload, timeout=10)
+        
     def get(self):
         if self.header['Authorization']:
             return requests.get(self.url, headers=self.header, data=self.payload, timeout=10)
